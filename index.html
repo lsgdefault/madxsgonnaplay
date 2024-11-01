@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MadXs Gonna Play</title>
+</head>
+<body>
+    <h1>Select that damn Video</h1>
+    <form id="videoForm">
+        <label for="filename">Enter the video name you wanna play(too lazy to put checks here):</label>
+        <input type="text" id="filename" name="filename" required>
+        <button type="button" onclick="playVideo()">Play Video</button>
+    </form>
+
+    <script>
+        function playVideo() {
+            const filename = document.getElementById('filename').value;
+            localStorage.setItem('videoFilename', filename);
+            window.location.href = 'player.html';
+        }
+    </script>
+</body>
+</html>

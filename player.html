@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MadXs Gonna Play</title>
+    <link href="videojs/css/videojs.css" rel="stylesheet" />
+    <link href="videojs/css/videojs-qualityselector.css" rel="stylesheet" />
+    <link href="videojs/css/videojs-watermark.css" rel="stylesheet" />
+    <link href="videojs/css/custom.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            background-color: #000000;
+        }
+
+        .video-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50vw;
+            height: 50vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="video-container">
+        <video id="video_1" class="video-js vjs-big-play-centered" controls data-setup='{}' poster="videojs/logo.png">
+        </video>
+    </div>
+    <script src="videojs/js/videojs.js"></script>
+    <script src="videojs/js/videojs-hotkeys.js"></script>
+    <script src="videojs/js/videojs-qualityselector.js"></script>
+    <script src="videojs/js/videojs-watermark.js"></script>
+    <script>
+        const filename = localStorage.getItem('videoFilename');
+
+        if (!filename) {
+            console.error('No filename found in localStorage');
+            alert('No video file selected. Please go back and select a video.');
+        }
+
+        const sources = [
+            { format: '144p', src: `videos/${filename}/144.mp4`, type: 'video/mp4' },
+            { format: '240p', src: `videos/${filename}/240.mp4`, type: 'video/mp4' },
+            { format: '360p', src: `videos/${filename}/360.mp4`, type: 'video/mp4' },
+            { format: '480p', src: `videos/${filename}/480.mp4`, type: 'video/mp4' },
+            { format: '720p', src: `videos/${filename}/720.mp4`, type: 'video/mp4' },
+            { format: '1080p', src: `videos/${filename}/1080.mp4`, type: 'video/mp4' },
+            { format: '1440p', src: `videos/${filename}/1440.mp4`, type: 'video/mp4' }
+        ];
+
+        var player = videojs('video_1', {
+            fluid: true,
+            playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
+            plugins: {
+                hotkeys: {
+                    volumeStep: 0.1,
+                    seekStep: 5,
+                    enableModifiersForNumbers: false
+                }
+            }
+        });
+
+        // Set default video source
+        var defaultSource = sources.find(source => source.format === '720p')?.src;
+        if (defaultSource) {
+            player.src(defaultSource);
+        } else {
+            console.error('Default video source not found');
+        }
+
+        // Configure quality selector
+        player.qualityselector({
+            sources: sources,
+            formats: sources.map(source => ({ code: source.format, name: source.format })),
+            onFormatSelected: function (format) {
+                // Extract the format code from the format object
+                const formatCode = format.code;
+
+                console.log('Selected format code:', formatCode);  // Log the selected format code
+
+                var selectedSource = sources.find(source => source.format === formatCode)?.src;
+
+                console.log('Selected source:', selectedSource);  // Log the selected source
+
+                if (selectedSource) {
+                    var currentTime = player.currentTime();
+                    player.src(selectedSource);
+
+                    // Use loadedmetadata event to ensure the video has loaded before seeking
+                    player.one('loadedmetadata', function () {
+                        player.currentTime(currentTime);
+                    });
+                } else {
+                    console.error('Selected video source not found for format code:', formatCode);
+                }
+            }
+        });
+
+
+
+        // Prevent right-click context menu
+        document.getElementById("video_1").addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        // Add watermark
+        player.watermark({
+            image: 'videojs/logo2.png',
+            position: 'bottom-right',
+            fadeTime: null,
+            url: 'https://dymn.me/nsfw'
+        });
+    </script>
+</body>
+
+</html>
